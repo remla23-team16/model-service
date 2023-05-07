@@ -3,6 +3,7 @@ import re
 import nltk
 import pickle
 import joblib
+import sklearn
 from nltk.corpus import stopwords
 from nltk.stem.porter import PorterStemmer
 
@@ -47,4 +48,4 @@ def predict(X):
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(host='0.0.0.0', debug=True, port=8080)
