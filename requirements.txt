@@ -2,3 +2,4 @@ Flask==2.2.4
 nltk
 joblib
 scikit-learn
+flask-cors
