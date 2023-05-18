@@ -12,6 +12,9 @@ app = Flask(__name__)
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
+classifier_path = os.environ.get['CLASSIFIER_PATH']
+bow_path = os.environ.get['BOW_PATH']
+
 @app.route('/<data>', methods=['GET'])
 @cross_origin()
 def fetch_model(data):
