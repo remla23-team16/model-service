@@ -44,7 +44,7 @@ def pre_process(data):
 
 
 def predict(X):
-    model = joblib.load(os.path.join(bow_path, 'classifier-model-1'))
+    model = joblib.load(os.path.join(classifier_path, 'classifier-model-1'))
     y = model.predict(X)
     return y
 
