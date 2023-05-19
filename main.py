@@ -6,17 +6,14 @@ import joblib
 import sklearn
 from nltk.corpus import stopwords
 from nltk.stem.porter import PorterStemmer
-from flask_cors import CORS, cross_origin
+import os
 
 app = Flask(__name__)
-cors = CORS(app)
-app.config['CORS_HEADERS'] = 'Content-Type'
 
-classifier_path = os.environ.get['CLASSIFIER_PATH']
-bow_path = os.environ.get['BOW_PATH']
+classifier_path = os.environ['CLASSIFIER_PATH']
+bow_path = os.environ['BOW_PATH']
 
 @app.route('/<data>', methods=['GET'])
-@cross_origin()
 def fetch_model(data):
     X = pre_process([data])
     return jsonify(predict(X).tolist())
