@@ -20,8 +20,7 @@ def fetch_model(data):
 
 
 def transform(corpus):
-    bow_path = 'c1_BoW_Sentiment_Model.pkl'
-    with open(bow_path, 'rb') as f:
+    with open(os.path.join(bow_path, 'sentiment-model-1'), 'rb') as f:
         cv = pickle.load(f)
     return cv.transform(corpus).toarray()
 
@@ -45,7 +44,7 @@ def pre_process(data):
 
 
 def predict(X):
-    model = joblib.load('c2_Classifier_Sentiment_Model')
+    model = joblib.load(os.path.join(bow_path, 'classifier-model-1'))
     y = model.predict(X)
     return y
 
