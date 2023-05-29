@@ -12,6 +12,12 @@ app = Flask(__name__)
 classifier_path = os.environ['CLASSIFIER_PATH']
 bow_path = os.environ['BOW_PATH']
 
+metrics = {
+    "n_predictions": 0,
+    "n_positive": 0,
+    "current_model": "latest"
+}
+
 nltk.download('stopwords')
 ps = PorterStemmer()
 all_stopwords = stopwords.words('english')
@@ -40,6 +46,7 @@ def select_version(version):
             load_version(str(v))
         except:
             return "Wrong version specified", 400
+    metrics["current_model"] = version
     return "Success", 200
 
 
@@ -52,7 +59,7 @@ def list_versions():
     return jsonify(res)
 
 
-@app.route('/<data>', methods=['GET'])
+@app.route('/<data>')
 def fetch_model(data):
     X = pre_process([data])
     return jsonify(predict(X).tolist())
@@ -77,8 +84,13 @@ def pre_process(data):
 
 def predict(X):
     y = model.predict(X)
+    metrics["n_predictions"] += 1
+    metrics["n_positive"] += 1 if y == 1 else 0
     return y
 
+@app.route('/metrics')
+def fetch_model(data):
+    return jsonify(metrics)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True, port=8080)
