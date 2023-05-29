@@ -1,9 +1,8 @@
-from flask import Flask, request, jsonify
+from flask import Flask, jsonify
 import re
 import nltk
 import pickle
 import joblib
-import sklearn
 from nltk.corpus import stopwords
 from nltk.stem.porter import PorterStemmer
 import os
@@ -13,6 +12,46 @@ app = Flask(__name__)
 classifier_path = os.environ['CLASSIFIER_PATH']
 bow_path = os.environ['BOW_PATH']
 
+nltk.download('stopwords')
+ps = PorterStemmer()
+all_stopwords = stopwords.words('english')
+all_stopwords.remove('not')
+
+cv, model = None
+
+
+def load_version(v):
+    global cv, model
+    # Load data
+    with open(os.path.join(bow_path, 'sentiment-model-' + v, 'rb')) as f:
+        cv = pickle.load(f)
+    model = joblib.load(os.path.join(classifier_path, 'classifier-model-' + v))
+
+
+@app.route('/model/<version>')
+def select_version(version):
+    if version == "latest":
+        load_version(str(len(os.listdir(classifier_path))))
+    else:
+        try:
+            v = int(version)
+            if v > len(os.listdir(classifier_path)) or v < 1:
+                raise Exception("Wrong version specified")
+            load_version(str(v))
+        except:
+            return "Wrong version specified", 400
+    return "Success", 200
+
+
+@app.route('/models')
+def list_versions():
+    res = []
+    for i in range(len(os.listdir(classifier_path))):
+        res.append(str(i + 1))
+    res[-1] = res[-1] + "(latest)"
+    return jsonify(res)
+
+
 @app.route('/<data>', methods=['GET'])
 def fetch_model(data):
     X = pre_process([data])
@@ -20,17 +59,10 @@ def fetch_model(data):
 
 
 def transform(corpus):
-    with open(os.path.join(bow_path, 'sentiment-model-1'), 'rb') as f:
-        cv = pickle.load(f)
     return cv.transform(corpus).toarray()
 
 
 def pre_process(data):
-    nltk.download('stopwords')
-    ps = PorterStemmer()
-    all_stopwords = stopwords.words('english')
-    all_stopwords.remove('not')
-
     corpus = []
 
     for i in range(len(data)):
@@ -44,10 +76,10 @@ def pre_process(data):
 
 
 def predict(X):
-    model = joblib.load(os.path.join(classifier_path, 'classifier-model-1'))
     y = model.predict(X)
     return y
 
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True, port=8080)
+    select_version("latest")
