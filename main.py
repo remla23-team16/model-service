@@ -88,9 +88,11 @@ def predict(X):
     metrics["n_positive"] += 1 if y == 1 else 0
     return y
 
+
 @app.route('/metrics')
 def fetch_model(data):
     return jsonify(metrics)
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True, port=8080)
