@@ -18,7 +18,7 @@ metrics = {
     "current_model": "latest"
 }
 
-nltk.download('stopwords')
+# nltk.download('stopwords')
 ps = PorterStemmer()
 all_stopwords = stopwords.words('english')
 all_stopwords.remove('not')
@@ -59,6 +59,11 @@ def list_versions():
     return jsonify(res)
 
 
+@app.route('/metrics')
+def get_metrics():
+    return jsonify(metrics)
+
+
 @app.route('/<data>')
 def fetch_model(data):
     X = pre_process([data])
@@ -87,11 +92,6 @@ def predict(X):
     metrics["n_predictions"] += 1
     metrics["n_positive"] += 1 if y == 1 else 0
     return y
-
-
-@app.route('/metrics')
-def fetch_model(data):
-    return jsonify(metrics)
 
 
 if __name__ == '__main__':
