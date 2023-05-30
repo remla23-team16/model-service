@@ -18,7 +18,7 @@ metrics = {
     "current_model": "latest"
 }
 
-# nltk.download('stopwords')
+nltk.download('stopwords')
 ps = PorterStemmer()
 all_stopwords = stopwords.words('english')
 all_stopwords.remove('not')
