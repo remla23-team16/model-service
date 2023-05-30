@@ -23,7 +23,7 @@ ps = PorterStemmer()
 all_stopwords = stopwords.words('english')
 all_stopwords.remove('not')
 
-cv, model = None
+cv, model = None, None
 
 
 def load_version(v):
