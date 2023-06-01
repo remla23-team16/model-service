@@ -1,3 +1,6 @@
+import time
+from time import sleep
+
 from flask import Flask, jsonify, make_response
 import re
 import nltk
@@ -6,7 +9,6 @@ import joblib
 from nltk.corpus import stopwords
 from nltk.stem.porter import PorterStemmer
 import os
-
 
 app = Flask(__name__)
 
@@ -24,14 +26,16 @@ all_stopwords = stopwords.words('english')
 all_stopwords.remove('not')
 
 cv, model = None, None
+current_model = "latest"
 
 
 def load_version(v):
-    global cv, model
+    global cv, model, current_model
     # Load data
     with open(os.path.join(bow_path, 'sentiment-model-' + v), 'rb') as f:
         cv = pickle.load(f)
     model = joblib.load(os.path.join(classifier_path, 'classifier-model-' + v))
+    current_model = v
 
 
 @app.route('/model/<version>')
@@ -55,29 +59,35 @@ def list_versions():
     return jsonify(res)
 
 
+@app.route('/model')
+def list_versions():
+    return jsonify(current_model)
+
+
 @app.route('/metrics')
 def get_metrics():
-    positive_ratio = 0 if metrics["n_predictions"] == 0 else metrics["n_positive"]/metrics["n_predictions"]
-    negative_ratio = 0 if metrics["n_predictions"] == 0 else 1-positive_ratio
+    positive_ratio = 0 if metrics["n_predictions"] == 0 else metrics["n_positive"] / metrics["n_predictions"]
+    negative_ratio = 0 if metrics["n_predictions"] == 0 else 1 - positive_ratio
     res = \
-'''# HELP n_predictions The total number of predictions made
+        '''# HELP n_predictions The total number of predictions made
 # TYPE n_predictions counter
 n_predictions{{}} {n_predictions}
 
 # HELP sentiment Ratio of positive/negative predictions
 # TYPE sentiment gauge
 sentiment{{type = "1"}} {positive_ratio}
-sentiment{{type = "0"}} {negative_ratio}'''\
-    .format(n_predictions=metrics["n_predictions"], positive_ratio=positive_ratio, negative_ratio=negative_ratio)
+sentiment{{type = "0"}} {negative_ratio}''' \
+            .format(n_predictions=metrics["n_predictions"], positive_ratio=positive_ratio,
+                    negative_ratio=negative_ratio)
     response = make_response(res, 200)
     response.mimetype = "text/plain"
     return response
 
 
-@app.route('/<data>')
+@app.route('/sentiment/<data>')
 def fetch_model(data):
     X = pre_process([data])
-    return jsonify(predict(X).tolist())
+    return jsonify({"sentiment": predict(X)[0]})
 
 
 def transform(corpus):
@@ -106,4 +116,6 @@ def predict(X):
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True, port=8080)
+    while len(os.listdir(classifier_path)) == 0:
+        time.sleep(1)
     select_version("latest")
