@@ -61,16 +61,17 @@ def list_versions():
 @app.route('/metrics')
 def get_metrics():
     positive_ratio = 0 if metrics["n_predictions"] == 0 else metrics["n_positive"]/metrics["n_predictions"]
-    res = '''
-    # HELP n_predictions The total number of predictions made
-    # TYPE n_predictions counter
-    n_predictions{{}} {n_predictions}
+    negative_ratio = 0 if metrics["n_predictions"] == 0 else 1-positive_ratio
+    res = \
+'''# HELP n_predictions The total number of predictions made
+# TYPE n_predictions counter
+n_predictions{{}} {n_predictions}
 
-    # HELP sentiment Ratio of positive/negative predictions
-    # TYPE sentiment gauge
-    sentiment{{type = "1"}} {positive_ratio}
-    sentiment{{type = "0"}} {negative_ratio}
-    '''.format(n_predictions=metrics["n_predictions"], positive_ratio=positive_ratio, negative_ratio=1-positive_ratio)
+# HELP sentiment Ratio of positive/negative predictions
+# TYPE sentiment gauge
+sentiment{{type = "1"}} {positive_ratio}
+sentiment{{type = "0"}} {negative_ratio}'''\
+    .format(n_predictions=metrics["n_predictions"], positive_ratio=positive_ratio, negative_ratio=negative_ratio)
     response = make_response(res, 200)
     response.mimetype = "text/plain"
     return response
