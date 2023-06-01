@@ -71,7 +71,7 @@ def get_metrics():
     sentiment{{type = "1"}} {positive_ratio}
     sentiment{{type = "0"}} {negative_ratio}
     '''.format(n_predictions=metrics["n_predictions"], positive_ratio=positive_ratio, negative_ratio=1-positive_ratio)
-    return jsonify(res)
+    return res
 
 
 @app.route('/<data>')
