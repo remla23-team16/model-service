@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, make_response
 import re
 import nltk
 import pickle
@@ -71,7 +71,9 @@ def get_metrics():
     sentiment{{type = "1"}} {positive_ratio}
     sentiment{{type = "0"}} {negative_ratio}
     '''.format(n_predictions=metrics["n_predictions"], positive_ratio=positive_ratio, negative_ratio=1-positive_ratio)
-    return res
+    response = make_response(res, 200)
+    response.mimetype = "text/plain"
+    return response
 
 
 @app.route('/<data>')
