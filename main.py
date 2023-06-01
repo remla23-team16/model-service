@@ -114,7 +114,7 @@ def predict(X):
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True, port=8080)
     while len(os.listdir(classifier_path)) == 0:
         time.sleep(1)
     select_version("latest")
+    app.run(host='0.0.0.0', debug=True, port=8080)
