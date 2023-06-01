@@ -86,7 +86,7 @@ sentiment{{type = "0"}} {negative_ratio}''' \
 @app.route('/sentiment/<data>')
 def fetch_model(data):
     X = pre_process([data])
-    return jsonify({"sentiment": predict(X)[0]})
+    return jsonify({"sentiment": int(predict(X)[0])})
 
 
 def transform(corpus):
