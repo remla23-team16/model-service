@@ -7,6 +7,7 @@ from nltk.corpus import stopwords
 from nltk.stem.porter import PorterStemmer
 import os
 
+
 app = Flask(__name__)
 
 classifier_path = os.environ['CLASSIFIER_PATH']
@@ -15,7 +16,6 @@ bow_path = os.environ['BOW_PATH']
 metrics = {
     "n_predictions": 0,
     "n_positive": 0,
-    "current_model": "latest"
 }
 
 nltk.download('stopwords')
@@ -46,7 +46,6 @@ def select_version(version):
             load_version(str(v))
         except:
             return "Wrong version specified", 400
-    metrics["current_model"] = version
     return "Success", 200
 
 
@@ -61,7 +60,18 @@ def list_versions():
 
 @app.route('/metrics')
 def get_metrics():
-    return jsonify(metrics)
+    positive_ratio = 0 if metrics["n_predictions"] == 0 else metrics["n_positive"]/metrics["n_predictions"]
+    res = '''
+    # HELP n_predictions The total number of predictions made
+    # TYPE n_predictions counter
+    n_predictions{{}} {n_predictions}
+
+    # HELP sentiment Ratio of positive/negative predictions
+    # TYPE sentiment gauge
+    sentiment{{type = "1"}} {positive_ratio}
+    sentiment{{type = "0"}} {negative_ratio}
+    '''.format(n_predictions=metrics["n_predictions"], positive_ratio=positive_ratio, negative_ratio=1-positive_ratio)
+    return jsonify(res)
 
 
 @app.route('/<data>')
