@@ -1,5 +1,4 @@
 import time
-from time import sleep
 
 from flask import Flask, jsonify, make_response
 import re
@@ -60,7 +59,7 @@ def list_versions():
 
 
 @app.route('/model')
-def list_versions():
+def current_version():
     return jsonify(current_model)
 
 
