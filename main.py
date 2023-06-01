@@ -29,7 +29,7 @@ cv, model = None, None
 def load_version(v):
     global cv, model
     # Load data
-    with open(os.path.join(bow_path, 'sentiment-model-' + v, 'rb')) as f:
+    with open(os.path.join(bow_path, 'sentiment-model-' + v)) as f:
         cv = pickle.load(f)
     model = joblib.load(os.path.join(classifier_path, 'classifier-model-' + v))
 
@@ -39,13 +39,10 @@ def select_version(version):
     if version == "latest":
         load_version(str(len(os.listdir(classifier_path))))
     else:
-        try:
-            v = int(version)
-            if v > len(os.listdir(classifier_path)) or v < 1:
-                raise Exception("Wrong version specified")
-            load_version(str(v))
-        except:
+        v = int(version)
+        if v > len(os.listdir(classifier_path)) or v < 1:
             return "Wrong version specified", 400
+        load_version(str(v))
     return "Success", 200
 
 
