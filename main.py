@@ -29,7 +29,7 @@ cv, model = None, None
 def load_version(v):
     global cv, model
     # Load data
-    with open(os.path.join(bow_path, 'sentiment-model-' + v)) as f:
+    with open(os.path.join(bow_path, 'sentiment-model-' + v), 'rb') as f:
         cv = pickle.load(f)
     model = joblib.load(os.path.join(classifier_path, 'classifier-model-' + v))
 
